@@ -1,21 +1,27 @@
 --
--- Simple file launcher
+-- Simple file loader
 --
--- To be used with mpv --idle --force-window=yes --fs
+-- To be used with mpv --idle --force-window=yes --fullscreen
 --
 
 utils = require 'mp.utils'
 
-root_dir = "/tmp"
+root_dir = mp.get_opt("top-dir") or "/tmp"
+
 current_dir = root_dir
 stack = {}
+list={}
 select = 1
 
-list = utils.readdir(current_dir, 'normal')
+
+function read_dir(dir)
+	list = utils.readdir(dir, 'normal')
+	table.sort(list)
+end
 
 
 function draw_dir()
-	local result = current_dir.." : "..select.."/"..#list.."\n\n"
+	local result = current_dir.." ["..#list.."]\n\n"
 	for i, v in ipairs(list) do
 		if i ~= select then
 			result = result..'. '..v.."\n"
@@ -59,23 +65,43 @@ end
 
 
 function enter_dir()
-	local path = current_dir..'/'..list[select]
-	local a = assert(os.execute('test -d "'..path..'"')) -- dir=0, file=256
-	if a ~= 0 then return end
-	current_dir = path
-	table.insert(stack, select)
-	select = 1
-	list = utils.readdir(current_dir, 'normal')
+	-- Try to enter only if the parent dir was not empty one,
+	-- i.e. an item was really selected (i.e list[select] is not nil)
+	if list[select] then
+		local path = current_dir..'/'..list[select]
+		local a = assert(os.execute('test -d "'..path..'"'))
+		-- "test -d" returns 0 for dirs, 256 for files,
+		-- so enter only if returned value is 0
+		if a ~= 0 then return end
+		current_dir = path
+		table.insert(stack, select)
+		select = 1
+		read_dir(current_dir)
+	end
 	return draw_dir()
 end
 
+
+function exit_dir()
+	if current_dir ~= root_dir then
+		local a = utils.split_path(current_dir)
+		a = string.sub(a, 1, -2)
+		current_dir = a
+		select = table.remove(stack)
+		read_dir(current_dir)
+	end
+	return draw_dir()
+end
+
+
+read_dir(current_dir)
 draw_dir()
 
 mp.register_event("end-file", playback_stop )
 
 mp.add_key_binding( "DOWN", "move_down", move_down, "repeatable" )
 mp.add_key_binding( "UP", "move_up", move_up, "repeatable")
+mp.add_key_binding("RIGHT", "enter_dir", enter_dir)
+mp.add_key_binding("LEFT", "exit_dir", exit_dir)
 mp.add_key_binding( "ENTER", "playback_start", playback_start )
 mp.add_key_binding("a", "playback_stop", playback_stop )
-
-mp.add_key_binding("RIGHT", "is_dir", enter_dir)
