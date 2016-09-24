@@ -29,7 +29,7 @@ function draw_dir()
 			result = result..'# '..v.."\n"
 		end
 	end
-	return mp.osd_message(result, 10)
+	return mp.osd_message(result, 5)
 end
 
 
@@ -104,4 +104,4 @@ mp.add_key_binding( "UP", "move_up", move_up, "repeatable")
 mp.add_key_binding("RIGHT", "enter_dir", enter_dir)
 mp.add_key_binding("LEFT", "exit_dir", exit_dir)
 mp.add_key_binding( "ENTER", "playback_start", playback_start )
-mp.add_key_binding("a", "playback_stop", playback_stop )
+mp.add_key_binding("END", "playback_stop", playback_stop )
