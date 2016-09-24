@@ -6,9 +6,9 @@
 
 utils = require 'mp.utils'
 
-root_dir = mp.get_opt("top-dir") or "/tmp"
+top_dir = mp.get_opt("top-dir") or "/tmp"
 
-current_dir = root_dir
+current_dir = top_dir
 stack = {}
 list={}
 select = 1
@@ -29,6 +29,9 @@ function draw_dir()
 			result = result..'# '..v.."\n"
 		end
 	end
+-- What is better??
+--	 mp.osd_message(result, 5)
+--	 return
 	return mp.osd_message(result, 5)
 end
 
@@ -83,7 +86,7 @@ end
 
 
 function exit_dir()
-	if current_dir ~= root_dir then
+	if current_dir ~= top_dir then
 		local a = utils.split_path(current_dir)
 		a = string.sub(a, 1, -2)
 		current_dir = a
