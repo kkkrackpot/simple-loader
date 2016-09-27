@@ -4,77 +4,75 @@
 -- To be used with mpv --idle --force-window=yes --fullscreen
 --
 
-utils = require 'mp.utils'
+local utils = require 'mp.utils'
 
-top_dir = mp.get_opt("top-dir") or "/tmp"
+local top_dir = mp.get_opt("top-dir") or "/tmp"
 
-current_dir = top_dir
-stack = {}
-list={}
-select = 1
+local current_dir = top_dir
+local stack = {}
+local list={}
+local select = 1
 
 
-function read_dir(dir)
+local function read_dir(dir)
 	list = utils.readdir(dir, 'normal')
 	table.sort(list)
 end
 
 
-function draw_dir()
+local function draw_dir()
 	local result = current_dir.." ["..#list.."]\n\n"
 	for i, v in ipairs(list) do
 		if i ~= select then
-			result = result..'. '..v.."\n"
+			result = result..'.. '..v.."\n"
 		else
 			result = result..'# '..v.."\n"
 		end
 	end
--- What is better??
---	 mp.osd_message(result, 5)
---	 return
-	return mp.osd_message(result, 5)
+	return mp.osd_message(result, 10)
 end
 
 
-function move_down()
-	if select < #list
-		then select = select + 1
-		else select = 1
+local function move_down()
+	if select < #list then
+		select = select + 1
+	else
+		select = 1
 	end
 	return draw_dir()
 end
 
 
-function move_up()
-	if select > 1
-		then select = select - 1
-		else select = #list
+local function move_up()
+	if select > 1 then
+		select = select - 1
+	else
+		select = #list
 	end
 	return draw_dir()
 end
 
 
-function playback_start()
+local function playback_start()
 	local file = current_dir..'/'..list[select]
 	mp.osd_message("Playing...", 2)
 	return mp.commandv("loadfile", file, "replace")
 end
 
 
-function playback_stop()
+local function playback_stop()
 	mp.command("stop")
 	return draw_dir()
 end
 
 
-function enter_dir()
-	-- Try to enter only if the parent dir was not empty one,
-	-- i.e. an item was really selected (i.e list[select] is not nil)
+local function enter_dir()
+	-- Enter only if parent dir was not empty one,
+	-- i.e. a valid item was selected (list[select] is not nil)
 	if list[select] then
 		local path = current_dir..'/'..list[select]
 		local a = assert(os.execute('test -d "'..path..'"'))
 		-- "test -d" returns 0 for dirs, 256 for files,
-		-- so enter only if returned value is 0
 		if a ~= 0 then return end
 		current_dir = path
 		table.insert(stack, select)
@@ -85,11 +83,10 @@ function enter_dir()
 end
 
 
-function exit_dir()
+local function exit_dir()
 	if current_dir ~= top_dir then
 		local a = utils.split_path(current_dir)
-		a = string.sub(a, 1, -2)
-		current_dir = a
+		current_dir = string.sub(a, 1, -2)	-- remove trailing slash
 		select = table.remove(stack)
 		read_dir(current_dir)
 	end
