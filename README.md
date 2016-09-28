@@ -17,11 +17,11 @@ Default key-bindings (change them inside the script, if necessary):
 `Alt+END` -- stop playback and return to directory list  
 
 # known limitations
-The script is Linux-only, since it relies on shell commands.
+The script is Linux-only, because it relies on shell commands.
 
 There's no scrolling. Depending on OSD font-size some items can go below the screen and will stay invisible (but selectable, though).
 
-Some special files (sockets, etc.) may not be listed, since the script relies on output from `mpv.readdir` (such files are usually not playable anyway, though).
+Some special files (sockets, etc.) may not be listed, since the script relies on output from `mp.utils.readdir` (such files are usually not playable anyway, though).
 
 # disclamer
 This software is provided as-is and is in public domain, see `LICENSE` file for details.
