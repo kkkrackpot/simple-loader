@@ -1,11 +1,13 @@
 --
--- Simple file loader
+-- Simple OSD file browser and launcher plugin for mpv.
 --
--- To be used with mpv --idle --force-window=yes --fullscreen
---
+-- Source: https://github.com/fhlfibh/simple-loader
+-- License: public domain
+-- 
 
 local utils = require 'mp.utils'
 
+-- Here to change default top-level directory "/tmp" (no trailing slash):
 local top_dir = mp.get_opt("top-dir") or "/tmp"
 
 local current_dir = top_dir
@@ -99,6 +101,7 @@ draw_dir()
 
 mp.register_event("end-file", playback_stop )
 
+-- Here to change default key-bindings ("Alt+DOWN", etc.):
 mp.add_key_binding( "Alt+DOWN", "move_down", move_down, "repeatable" )
 mp.add_key_binding( "Alt+UP", "move_up", move_up, "repeatable")
 mp.add_key_binding("Alt+RIGHT", "enter_dir", enter_dir)
