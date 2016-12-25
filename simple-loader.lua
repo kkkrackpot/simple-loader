@@ -3,7 +3,7 @@
 --
 -- Source: https://github.com/fhlfibh/simple-loader
 -- License: public domain
--- 
+--
 
 local utils = require 'mp.utils'
 
@@ -12,9 +12,14 @@ local top_dir = mp.get_opt("top-dir") or "/tmp"
 
 local current_dir = top_dir
 local stack = {}
-local list={}
+local list = {}
 local select = 1
-
+local ass = {
+	start = mp.get_property_osd("osd-ass-cc/0"),
+	stop = mp.get_property_osd("osd-ass-cc/1"),
+	color = "{\\1c&H00CCFF&}{\\b1}",
+	white = "{\\1c&HFFFFFF&}{\\b0}"
+}
 
 local function read_dir(dir)
 	list = utils.readdir(dir, 'normal')
@@ -23,14 +28,15 @@ end
 
 
 local function draw_dir()
-	local result = current_dir.." ["..#list.."]\n\n"
+	local result = current_dir.." ["..#list.."]\n\n"..ass.start
 	for i, v in ipairs(list) do
 		if i ~= select then
-			result = result..'.. '..v.."\n"
+			result = result..ass.white..v.."\n"
 		else
-			result = result..'# '..v.."\n"
+			result = result..ass.color..v.."\n"
 		end
 	end
+	result = result..ass.stop
 	return mp.osd_message(result, 10)
 end
 
